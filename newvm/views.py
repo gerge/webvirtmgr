@@ -226,6 +226,10 @@ def index(request, host_id):
 			if not iso:
 				iso = ''
 			memaloc = mem
+			if kvm_host.passwd:
+				vnc_auth = 'S0vd0d' + kvm_host.passwd + 'p4yU9'
+			else:
+				vnc_auth = 'S0vd0d' + request.session['passwd_kvm'] + 'p4yU9'
 			xml = """<domain type='%s'>
 					  <name>%s</name>
 					  <memory>%s</memory>
@@ -280,7 +284,7 @@ def index(request, host_id):
 					    </interface>
 					    <input type='tablet' bus='usb'/>
 					    <input type='mouse' bus='ps2'/>
-					    <graphics type='vnc' port='-1' autoport='yes'/>
+					    <graphics type='vnc' port='-1' autoport='yes' keymap='en-us' passwd='%s'/>
 					    <video>
 					      <model type='cirrus' vram='9216' heads='1'/>
 					      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
@@ -289,7 +293,7 @@ def index(request, host_id):
 					      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
 					    </memballoon>
 					  </devices>
-					</domain>"""
+					</domain>""" % (vnc_auth)
 			conn.defineXML(xml)
 			dom = conn.lookupByName(name)
 			dom.setAutostart(1)
